@@ -247,4 +247,4 @@ input,textarea,select{color-scheme:dark}
   .memory-grid{grid-template-columns:1fr 1fr}.memory-tile{height:180px}.masonry{columns:2}.party-actions button{font-size:8px}.party-actions svg{width:12px}.inline-form{flex-direction:column}
 }
 
-@media(max-width:800px){.auth-screen{grid-template-columns:1fr;padding:14px}.auth-screen:before{inset:14px;border-radius:20px}.auth-screen:after{left:34px;bottom:42px;font-size:58px}.auth-card{align-self:end;margin:0 0 8px;padding:28px;border-radius:20px;background:rgba(7,10,13,.94)}}\n
+@media(max-width:800px){.auth-screen{grid-template-columns:1fr;padding:14px}.auth-screen:before{inset:14px;border-radius:20px}.auth-screen:after{left:34px;bottom:42px;font-size:58px}.auth-card{align-self:end;margin:0 0 8px;padding:28px;border-radius:20px;background:rgba(7,10,13,.94)}}
