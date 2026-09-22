@@ -11,3 +11,5 @@ Discover parties, map discovery, party pages, approval/waiting rooms, host contr
 Next.js App Router · TypeScript · Supabase · Vercel
 
 The current interface is intentionally usable with demo data while the Supabase-backed actions are wired into the production product model.
+
+Build verification branch.
