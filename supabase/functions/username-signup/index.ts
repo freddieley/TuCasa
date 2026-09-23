@@ -1,1 +1,43 @@
-import{withSupabase}from'npm:@supabase/server@^1';const R=/^[a-z0-9_]{3,24}$/,D='auth.tucasa.local';export default{fetch:withSupabase({auth:'none'},async(req,ctx)=>{if(req.method!=='POST')return Response.json({error:'Method not allowed'},{status:405});try{const b=await req.json(),u=String(b.username??'').trim().toLowerCase(),n=String(b.displayName??'').trim(),p=String(b.password??'');if(!R.test(u))return Response.json({error:'Username must be 3–24 characters and use lowercase letters, numbers or underscores.'},{status:400});if(!n||n.length>60)return Response.json({error:'Display name is required.'},{status:400});if(p.length<8)return Response.json({error:'Password must be at least 8 characters.'},{status:400});const{data:ex}=await ctx.supabaseAdmin.from('profiles').select('id').eq('username',u).maybeSingle();if(ex)return Response.json({error:'That username is already taken.'},{status:409});const{data:a,error:ae}=await ctx.supabaseAdmin.auth.admin.createUser({email:u+'@'+D,password:p,email_confirm:true});if(ae||!a.user)return Response.json({error:ae?.message||'Could not create account.'},{status:400});const{error:pe}=await ctx.supabaseAdmin.from('profiles').insert({id:a.user.id,username:u,display_name:n});if(pe){await ctx.supabaseAdmin.auth.admin.deleteUser(a.user.id);return Response.json({error:pe.code==='23505'?'That username is already taken.':pe.message},{status:400})}return Response.json({ok:true})}catch(e){console.error(e);return Response.json({error:'Invalid request.'},{status:400})}})};
+import { withSupabase } from 'npm:@supabase/server@^1'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+
+const USERNAME_RE = /^[a-z0-9_]{3,24}$/
+const AUTH_DOMAIN = 'tucasa-phi.vercel.app'
+
+const response = (body: unknown, status = 200) =>
+  Response.json(body, { status, headers: corsHeaders })
+
+export default {
+  fetch: withSupabase({ auth: 'none' }, async (req, ctx) => {
+    if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+    if (req.method !== 'POST') return response({ error: 'Method not allowed' }, 405)
+    try {
+      const body = await req.json()
+      const username = String(body.username ?? '').trim().toLowerCase()
+      const displayName = String(body.displayName ?? '').trim()
+      const password = String(body.password ?? '')
+      if (!USERNAME_RE.test(username)) return response({ error: 'Username must be 3–24 characters and use lowercase letters, numbers or underscores.' }, 400)
+      if (displayName.length < 1 || displayName.length > 60) return response({ error: 'Display name must be between 1 and 60 characters.' }, 400)
+      if (password.length < 8) return response({ error: 'Password must be at least 8 characters.' }, 400)
+      const { data: existing, error: lookupError } = await ctx.supabaseAdmin.from('profiles').select('id').eq('username', username).maybeSingle()
+      if (lookupError) return response({ error: lookupError.message }, 500)
+      if (existing) return response({ error: 'That username is already taken.' }, 409)
+      const { data: created, error: authError } = await ctx.supabaseAdmin.auth.admin.createUser({
+        email: username + '@' + AUTH_DOMAIN,
+        password,
+        email_confirm: true,
+      })
+      if (authError || !created.user) return response({ error: authError?.message ?? 'Could not create account.' }, 400)
+      const { error: profileError } = await ctx.supabaseAdmin.from('profiles').insert({
+        id: created.user.id,
+        username,
+        display_name: displayName,
+      })
+      if (profileError) return response({ error: profileError.code === '23505' ? 'That username is already taken.' : profileError.message }, profileError.code === '23505' ? 409 : 400)
+      return response({ ok: true, username })
+    } catch (error) {
+      console.error(error)
+      return response({ error: error instanceof Error ? error.message : 'Invalid request.' }, 400)
+    }
+  }),
+}
