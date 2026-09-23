@@ -1,0 +1,1 @@
+import{createClient}from'@supabase/supabase-js';export const SUPABASE_URL='https://pmfiaibpgqtwymampiwq.supabase.co';export const SUPABASE_KEY='sb_publishable_mupUC4Jd8BEAO6dAO0ZnKw_-S_JyzZ4';export const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});export const authEmail=u=>u.trim().toLowerCase()+'@auth.tucasa.local';
