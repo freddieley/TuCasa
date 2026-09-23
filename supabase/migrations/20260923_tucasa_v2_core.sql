@@ -89,6 +89,7 @@ grant select,insert,update on public.parties to authenticated;
 grant select,insert,update,delete on public.party_memberships to authenticated;
 grant select,insert,delete on public.party_blocks to authenticated;
 grant select,insert,update,delete on public.party_media to authenticated;
+grant all on public.profiles,public.parties,public.party_memberships,public.party_blocks,public.party_media to service_role;
 
 drop policy if exists "Profiles are visible to signed-in users" on public.profiles;
 create policy "Profiles are visible to signed-in users" on public.profiles for select to authenticated using(true);
