@@ -6,6 +6,7 @@ create table if not exists public.profiles(
  username text not null unique,
  display_name text not null,
  email_added boolean not null default false,
+ recovery_email text,
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
  constraint profiles_username_format check(username~'^[a-z0-9_]{3,24}$'),
